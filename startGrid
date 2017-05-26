@@ -1,7 +1,7 @@
 #!/bin/bash
 
-AWS_ACCESS_KEY=AKIAIZFGSMZFQNHNJMVA
-AWS_SECRET_KEY=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
+AWS_ACCESS_KEY=
+AWS_SECRET_KEY=
 [ -z ${AWS_ACCESS_KEY} ] && echo "AWS_ACCESS_KEY MUST BE SET!" && exit 1
 [ -z ${AWS_SECRET_KEY} ] && echo "AWS_SECRET_KEY MUST BE SET!" && exit 1
 echo $AWS_ACCESS_KEY
@@ -13,7 +13,7 @@ java -Xms2048m -Xmx4096m \
     -DawsAccessKey="${AWS_ACCESS_KEY}" \
     -DawsSecretKey="${AWS_SECRET_KEY}" \
     -DipAddress="${IP_ADDRESS}" \
-    -cp ./target/automation-grid.jar org.openqa.grid.selenium.GridLauncher \
+    -cp ./target/automation-grid.jar org.openqa.grid.selenium.GridLauncherV3 \
     -role hub \
     -servlets "com.rmn.qa.servlet.AutomationTestRunServlet","com.rmn.qa.servlet.StatusServlet" \
     -DPOOL_MAX=1024 \
