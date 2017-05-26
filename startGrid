@@ -1,21 +1,22 @@
 #!/bin/bash
 
-AWS_ACCESS_KEY=
-AWS_SECRET_KEY=
+AWS_ACCESS_KEY=AKIAIZFGSMZFQNHNJMVA
+AWS_SECRET_KEY=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
 [ -z ${AWS_ACCESS_KEY} ] && echo "AWS_ACCESS_KEY MUST BE SET!" && exit 1
 [ -z ${AWS_SECRET_KEY} ] && echo "AWS_SECRET_KEY MUST BE SET!" && exit 1
 echo $AWS_ACCESS_KEY
 # set defaults
-[ -z ${IP_ADDRESS} ] && IP_ADDRESS=1.1.1.1
+[ -z ${IP_ADDRESS} ] && IP_ADDRESS=192.168.0.7
 
-java -DawsAccessKey="${AWS_ACCESS_KEY}" \
+java -Xms2048m -Xmx4096m \
+    -DpropertyFileLocation=./aws.properties \
+    -DawsAccessKey="${AWS_ACCESS_KEY}" \
     -DawsSecretKey="${AWS_SECRET_KEY}" \
     -DipAddress="${IP_ADDRESS}" \
     -cp ./target/automation-grid.jar org.openqa.grid.selenium.GridLauncher \
     -role hub \
     -servlets "com.rmn.qa.servlet.AutomationTestRunServlet","com.rmn.qa.servlet.StatusServlet" \
     -DPOOL_MAX=1024 \
-    -DtotalNodeCount=325 \
+    -DtotalNodeCount=90 \
     -hubConfig hub.static.json \
-    -log grid.log \
-    -DpropertyFileLocation=/Users/xxxxxx/tools/GridScale/aws.properties
+    -log grid.log 
