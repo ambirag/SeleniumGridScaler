@@ -66,8 +66,9 @@ public class AwsVmManager implements VmManager {
     private AmazonEC2Client client;
     @VisibleForTesting AWSCredentials credentials;
     private Properties awsProperties;
-    public static final int CHROME_THREAD_COUNT = 1;
-    public static final int FIREFOX_IE_THREAD_COUNT = 1;
+    public static final int CHROME_THREAD_COUNT = 15;
+    public static final int FIREFOX_IE_THREAD_COUNT = 20;
+    public static final int IE_THREAD_COUNT = 1;
 
     private String region;
 
@@ -485,7 +486,7 @@ public class AwsVmManager implements VmManager {
         nodeConfig = nodeConfig.replaceAll("<MAX_SESSION>", String.valueOf(maxSessions));
         nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_FIREFOX>",
                 String.valueOf(AwsVmManager.FIREFOX_IE_THREAD_COUNT));
-        nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_IE>", String.valueOf(AwsVmManager.FIREFOX_IE_THREAD_COUNT));
+        nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_IE>", String.valueOf(AwsVmManager.IE_THREAD_COUNT));
         nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_CHROME>", String.valueOf(AwsVmManager.CHROME_THREAD_COUNT));
         nodeConfig = nodeConfig.replaceAll("<UUID>", uuid);
         nodeConfig = nodeConfig.replaceAll("<CREATED_BROWSER>", browser);

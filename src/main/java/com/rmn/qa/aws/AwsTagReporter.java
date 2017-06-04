@@ -137,7 +137,7 @@ public class AwsTagReporter extends Thread {
         }
 
         // Including a hard coded tag here so we can track which resources originate from this plugin
-        Tag nodeTag = new Tag("LaunchSource","SeleniumGridScalerExpwebStubbed"+AutomationUtils.getHubInstanceId());
+        Tag nodeTag = new Tag("LaunchSource","SeleniumGridScaler"+AutomationUtils.getHubInstanceId());
 
         log.info("Adding hard-coded tag: " + nodeTag);
         tags.add(nodeTag);

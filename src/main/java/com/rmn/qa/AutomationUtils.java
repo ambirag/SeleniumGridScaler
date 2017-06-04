@@ -83,7 +83,7 @@ public final class AutomationUtils {
      */
     public static String getHubInstanceId()
     {
-        String hubInstanceId="NoResponse";
+        String hubInstanceId="NonAws";
 
         try {
             URL url = new URL(AWS_INSTANCE_METADATA_URI + "/instance-id");
