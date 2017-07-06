@@ -21,14 +21,14 @@ node_instance_type_chrome=t2.micro
 # Firefox and IE will only run in 1 browser per VM so we'll use micros for them
 node_instance_type_firefox=t2.micro
 node_instance_type_internetexplorer=t2.micro
-east_windows_node_ami=ami-dcd869b4
+us-west-2_windows_node_ami=ami-22757d5b
 
 
 # Security Group Info
 us-east-1_subnet_id=subnet-df8ad4b4
 us-east-1_security_group=sg-44608f2b,sg-b4618edb,sg-45608f2a
 #us-west-2_security_group=sg-a7a751c8
-us-west-2_security_group=sg-48b69b33,sg-01b8e87a,sg-5aaefe21,sg-168e1d6f
+us-west-2_security_group=sg-01b8e87a,sg-5aaefe21,sg-168e1d6f,sg-306f5a4b
 # VPC Info
 us-west-2_subnet_id=subnet-f187a487
 # Fallback VPCs

@@ -311,7 +311,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
             if(AutomationUtils.lowerCaseMatch(BrowserType.CHROME,browser)) {
                 numThreadsPerMachine = AwsVmManager.CHROME_THREAD_COUNT;
                 //TODO Browser Enum replacement here
-            } else if (AutomationUtils.lowerCaseMatch(BrowserType.IE,browser) || AutomationUtils.lowerCaseMatch(BrowserType.FIREFOX,browser)) {
+            } else if (AutomationUtils.lowerCaseMatch(BrowserType.FIREFOX,browser)) {
                 numThreadsPerMachine= AwsVmManager.FIREFOX_IE_THREAD_COUNT;  //This is actually for FIREFOX only TODO: remove IE from the variable
             }else if (AutomationUtils.lowerCaseMatch(BrowserType.IE.replaceFirst(" ",""),browser)) {
                 numThreadsPerMachine = AwsVmManager.IE_THREAD_COUNT;
