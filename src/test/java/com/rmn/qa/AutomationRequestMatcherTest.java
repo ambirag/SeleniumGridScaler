@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -174,7 +175,7 @@ public class AutomationRequestMatcherTest extends BaseTest {
 
     @Test
     // Happy path that browsers matching shows correct free node count
-    public void testRequestMatchingBrowsers() throws IOException, ServletException{
+     public void testRequestMatchingBrowsers() throws IOException, ServletException{
         String browser = "firefox";
         String nodeId = "nodeId";
         // Add a node that is not running to make sure its not included in the available calculation
@@ -535,7 +536,7 @@ public class AutomationRequestMatcherTest extends BaseTest {
         Map<String,String> config2 = Maps.newHashMap();
         config2.put(AutomationConstants.INSTANCE_ID,nodeId);
         proxy2.setConfig(config2);
-        Map<String,Object> nonMatchingCapabilities2 = Maps.newHashMap();
+        Map<String,Object> nonMatchingCapabilities2 = new HashMap<String,Object>();
         nonMatchingCapabilities2.put(CapabilityType.BROWSER_NAME, "chrome");
         TestSlot testSlot3 = new TestSlot(proxy, SeleniumProtocol.WebDriver,null,nonMatchingCapabilities2);
         testSlot2.getNewSession(nonMatchingCapabilities2);
@@ -545,6 +546,7 @@ public class AutomationRequestMatcherTest extends BaseTest {
         proxy2.setMultipleTestSlots(testSlot4, 1);
 
         proxySet.add(proxy);
+
 
         proxySet.add(proxy2);
 

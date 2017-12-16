@@ -6,28 +6,19 @@
                 "maxInstances": <MAX_SESSION_IE>,
                 "instanceId": <INSTANCE_ID>,
                 "seleniumProtocol": "WebDriver"
-            },
-            {
-                "browserName": "chrome",
-                "maxInstances": <MAX_SESSION_CHROME>,
-                "instanceId": <INSTANCE_ID>,
-                "seleniumProtocol": "WebDriver"
-            },
-            {
-                "browserName": "firefox",
-                "maxInstances": <MAX_SESSION_FIREFOX>,
-                "instanceId": <INSTANCE_ID>,
-                "seleniumProtocol": "WebDriver"
             }
         ],
         "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
         "maxSession": <MAX_SESSION>,
         "register": true,
         "registerCycle": 5000,
+        "nodePolling": 5000,
+        "role": "node",
+        "unregisterIfStillDownAfter": 60000,
         "hub": "<HOST_NAME>",
+        "debug": false,
         "custom": {
             "uuid":"<UUID>",
-            "instanceId": "<INSTANCE_ID>",
             "createdDate":"<CREATED_DATE>",
             "createdBrowser":"<CREATED_BROWSER>",
             "createdOs":"<CREATED_OS>"

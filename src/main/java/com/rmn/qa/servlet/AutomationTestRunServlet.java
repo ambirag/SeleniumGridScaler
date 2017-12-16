@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.ec2.model.Instance;
-import com.google.common.collect.Lists;
+import com.beust.jcommander.internal.Lists;
 import com.rmn.qa.AutomationConstants;
 import com.rmn.qa.AutomationContext;
 import com.rmn.qa.AutomationDynamicNode;
@@ -126,7 +126,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
         if(!"false".equalsIgnoreCase(runReaperThread)) {
             // Spin up a scheduled thread to terminate orphaned instances
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new AutomationReaperTask(this,ec2),
-                    1L, 15L, TimeUnit.MINUTES);
+                    1L, 5L, TimeUnit.MINUTES);
         } else {
             log.info("Reaper thread not running due to config flag.");
         }
@@ -204,7 +204,6 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
                 return;
             }
         }
-
         Integer threadCountRequested = Integer.valueOf(threadCount);
 
         AutomationRunRequest runRequest = new AutomationRunRequest(uuid, threadCountRequested, browserRequested, browserVersion, requestedPlatform);
@@ -312,10 +311,12 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
                 numThreadsPerMachine = AwsVmManager.CHROME_THREAD_COUNT;
                 //TODO Browser Enum replacement here
             } else if (AutomationUtils.lowerCaseMatch(BrowserType.FIREFOX,browser)) {
-                numThreadsPerMachine= AwsVmManager.FIREFOX_IE_THREAD_COUNT;  //This is actually for FIREFOX only TODO: remove IE from the variable
-            }else if (AutomationUtils.lowerCaseMatch(BrowserType.IE.replaceFirst(" ",""),browser)) {
-                numThreadsPerMachine = AwsVmManager.IE_THREAD_COUNT;
-            }else {
+                numThreadsPerMachine = AwsVmManager.FIREFOX_IE_THREAD_COUNT; //This is actually for FIREFOX only TODO: remove IE from the variable
+            }
+            else if (AutomationUtils.lowerCaseMatch(BrowserType.IE.replaceFirst(" ",""),browser)) {
+                numThreadsPerMachine= AwsVmManager.IE_THREAD_COUNT;
+
+            } else {
                 log.warn("Unsupported browser: " + browser);
                 throw new NodesCouldNotBeStartedException("Unsupported browser: " + browser);
             }
@@ -341,7 +342,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
             }
             return createdNodes;
         } catch(Exception e) {
-            log.error("Error trying to start nodes: ",e);
+            log.error("Error trying to start nodes: " + e);
             throw new NodesCouldNotBeStartedException("Error trying to start nodes",e);
         }
     }

@@ -36,7 +36,7 @@ public class AutomationRunCleanupTaskTest extends BaseTest {
     @Test
     // Tests that an old run not in progress is no longer registered
     public void testCleanup() {
-        AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"firefox","10", Platform.LINUX, AutomationUtils.modifyDate(new Date(), -1, Calendar.HOUR));
+    	AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"firefox","10", Platform.LINUX, AutomationUtils.modifyDate(new Date(), -1, Calendar.HOUR));
         AutomationRunContext context = AutomationContext.getContext();
         context.addRun(oldRequest);
 

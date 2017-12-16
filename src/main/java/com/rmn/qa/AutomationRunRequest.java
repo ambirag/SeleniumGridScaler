@@ -31,8 +31,8 @@ import com.rmn.qa.task.AbstractAutomationCleanupTask;
  * @author mhardin
  */
 public final class AutomationRunRequest {
-
-    private static final Logger log = LoggerFactory.getLogger(AbstractAutomationCleanupTask.class);
+	
+	private static final Logger log = LoggerFactory.getLogger(AbstractAutomationCleanupTask.class);
 
     private final String uuid;
     private final Integer threadCount;
@@ -179,7 +179,7 @@ public final class AutomationRunRequest {
             builder.append(" - Browser: ").append(browser);
         }
         if(platform != null) {
-            builder.append(" - Platform: ").append(platform);
+        	builder.append(" - Platform: ").append(platform);
         }
         return builder.toString();
     }

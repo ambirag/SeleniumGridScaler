@@ -59,7 +59,7 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         Platform os = Platform.LINUX;
         config.put(AutomationConstants.INSTANCE_ID,instanceId);
         config.put(AutomationConstants.UUID,uuid);
-        //config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        // config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
         proxy.getConfig().maxSession = threadCount;
         config.put(AutomationConstants.CONFIG_BROWSER, browser);
         config.put(AutomationConstants.CONFIG_OS, os.toString());
@@ -92,7 +92,7 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         Platform os = Platform.LINUX;
         config.put(AutomationConstants.INSTANCE_ID,instanceId);
         config.put(AutomationConstants.UUID,"fake");
-        //config.put(AutomationConstants.CONFIG_MAX_SESSION, 1);
+        // config.put(AutomationConstants.CONFIG_MAX_SESSION, 1);
         proxy.getConfig().maxSession = 1;
         config.put(AutomationConstants.CONFIG_BROWSER, "fake");
         config.put(AutomationConstants.CONFIG_OS, "fake");
@@ -123,12 +123,12 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         String uuid="testUuid";
         int threadCount = 10;
         String browser = "firefox";
-        String os = "linux";
+        Platform os = Platform.LINUX;
         config.put(AutomationConstants.UUID,uuid);
         //config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
         proxy.getConfig().maxSession = threadCount;
         config.put(AutomationConstants.CONFIG_BROWSER, browser);
-        config.put(AutomationConstants.CONFIG_OS, os);
+        config.put(AutomationConstants.CONFIG_OS, os.toString());
         config.put(AutomationConstants.CONFIG_CREATED_DATE, AwsVmManager.NODE_DATE_FORMAT.format(new Date()));
         proxy.setConfig(config);
         proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
@@ -172,13 +172,13 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         String uuid="testUuid";
         int threadCount = 10;
         String browser = "firefox";
-        String os = "linux";
+        Platform os = Platform.LINUX;
         config.put(AutomationConstants.INSTANCE_ID,instanceId);
         config.put(AutomationConstants.UUID,uuid);
         //config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
         proxy.getConfig().maxSession = threadCount;
         config.put(AutomationConstants.CONFIG_BROWSER, browser);
-        config.put(AutomationConstants.CONFIG_OS, os);
+        config.put(AutomationConstants.CONFIG_OS, os.toString());
 
         DateFormat badDateFormat = new SimpleDateFormat("MM HH:mm:ss");
         config.put(AutomationConstants.CONFIG_CREATED_DATE, badDateFormat.format(new Date()));

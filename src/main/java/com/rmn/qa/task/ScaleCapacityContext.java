@@ -41,7 +41,7 @@ public class ScaleCapacityContext {
 	@Override
 	public String toString() {
 		return "ScaleCapacityContext{" +
-				"nodesPendingStartup=" + nodesPendingStartup +
+				"nodesPendingStartup=" + nodesPendingStartup  +
 				'}';
 	}
 }

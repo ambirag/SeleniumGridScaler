@@ -19,16 +19,12 @@ import java.net.URLConnection;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.rmn.qa.aws.AwsTagReporter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.BrowserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * Util methods
  * @author mhardin
@@ -42,9 +38,17 @@ public final class AutomationUtils {
      * @param unitType Measurement type (e.g. Calendar.SECONDS)
      * @return Modified date
      */
-    private static final Logger log = LoggerFactory.getLogger(AwsTagReporter.class);
+	private static final Logger log = LoggerFactory.getLogger(AutomationUtils.class);
     private static int AWS_METADATA_TIMEOUT = 3 * 1000;
     private static String AWS_INSTANCE_METADATA_URI = "http://169.254.169.254/latest/meta-data";
+    
+    public static boolean terminateBySec;
+
+    static {
+        if("true".equals(System.getProperty("terminateBySec"))) {
+            terminateBySec = true;
+        }
+    }
 
     public static Date modifyDate(Date dateToModify,int unitsToModify,int unitType) {
         Calendar c = Calendar.getInstance();
@@ -62,7 +66,7 @@ public final class AutomationUtils {
      * @return
      */
     public static boolean isCurrentTimeAfterDate(Date dateToCheck,int unitsToCheckWith,int unitType) {
-        Date targetDate = AutomationUtils.modifyDate(dateToCheck, unitsToCheckWith, unitType);
+        Date targetDate = AutomationUtils.modifyDate(dateToCheck,unitsToCheckWith,unitType);
         return new Date().after(targetDate);
     }
 
@@ -83,7 +87,7 @@ public final class AutomationUtils {
      */
     public static String getHubInstanceId()
     {
-        String hubInstanceId="NonAws";
+        String hubInstanceId="NonAWS";
 
         try {
             URL url = new URL(AWS_INSTANCE_METADATA_URI + "/instance-id");
@@ -124,8 +128,9 @@ public final class AutomationUtils {
         }
         return line;
     }
-
-     /* Returns the Selenium platform object from an unknown object, which could be a string or an actual object.
+    
+    /**
+     * Returns the Selenium platform object from an unknown object, which could be a string or an actual object.
      * If the platform can not be determined, null will be returned
      * @param platformObj
      * @return
@@ -153,7 +158,7 @@ public final class AutomationUtils {
         }
         return parsedPlatform;
     }
-
+    
     /**
      * Returns true if the requested browser and platform can be used within AMIs, and false otherwise
      * @param browserPair
@@ -225,13 +230,14 @@ public final class AutomationUtils {
      * @return
      */
     public static Platform getUnderlyingFamily(Platform platform) {
-        if (platform == null) {
-            return null;
-        }
+    	if (platform == null) {
+    		return null;
+    	}
         if (platform == Platform.UNIX || platform == Platform.WINDOWS || platform == Platform.MAC || platform == Platform.ANY) {
             return platform;
         } else {
             return getUnderlyingFamily(platform.family());
         }
     }
+
 }

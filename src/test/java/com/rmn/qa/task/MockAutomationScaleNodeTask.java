@@ -56,7 +56,7 @@ public class MockAutomationScaleNodeTask extends AutomationScaleNodeTask {
 		numThreadsStarted.add(browsersToStart);
 		browserStarted.add(browser);
 		platformStarted.add(platform);
-		for (int i=0;i<browsersToStart;i++) {
+		for (int i = 0; i < browsersToStart; i++) {
 			String instance = "foo" + i;
 			AutomationDynamicNode createdNode = new AutomationDynamicNode(instance, instance, browser, platform, new Date(), 1);
 			AutomationContext.getContext().addPendingNode(createdNode);
@@ -74,23 +74,23 @@ public class MockAutomationScaleNodeTask extends AutomationScaleNodeTask {
 	public void setNodeOldEnoughToStart(boolean nodeOldEnoughToStart) {
 		this.nodeOldEnoughToStart = nodeOldEnoughToStart;
 	}
-
+	
 	public List<AutomationDynamicNode> getNodesStarted() {
 		return nodesStarted;
 	}
-
+	
 	public List<String> getBrowserStarted() {
 		return browserStarted;
 	}
-
+	
 	public List<Platform> getPlatformStarted() {
 		return platformStarted;
 	}
-
+	
 	public List<Integer> getNumThreadsStarted() {
 		return numThreadsStarted;
 	}
-
+	
 	public void clear() {
 		nodesStarted = Lists.newArrayList();
 		browserStarted = Lists.newArrayList();

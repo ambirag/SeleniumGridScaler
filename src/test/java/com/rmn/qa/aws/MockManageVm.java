@@ -50,8 +50,8 @@ public class MockManageVm extends AwsVmManager {
     public void setCredentials(AWSCredentials basicAWSCredentials) {
         this.credentials = basicAWSCredentials;
     }
-
+    
     public void setAwsCredentials(AWSCredentials awsCredentials) {
-        this.awsCredentials = awsCredentials;
+    	this.awsCredentials = awsCredentials;
     }
 }

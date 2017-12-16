@@ -51,7 +51,7 @@ public class AutomationRunRequestTest extends BaseTest {
         Platform os = Platform.LINUX;
         AutomationRunRequest first = new AutomationRunRequest(uuid,null,browser,browserVersion,os);
         AutomationRunRequest second = new AutomationRunRequest(uuid,null,"badBrowser",browserVersion,os);
-        Assert.assertFalse("Run requests should NOT match due to browser", first.matchesCapabilities(second));
+        Assert.assertFalse("Run requests should NOT match due to browser",first.matchesCapabilities(second));
     }
     @Test
     // Tests that two run request objects do match each other due to mismatching browser versions
@@ -87,7 +87,7 @@ public class AutomationRunRequestTest extends BaseTest {
         AutomationRunRequest second = new AutomationRunRequest(uuid,null,browser,"20",Platform.LINUX);
         Assert.assertTrue("Run requests should match", first.matchesCapabilities(second));
     }
-
+    
     @Test
     // Tests that two run request objects do NOT match each other since the optional fields are on the first object
     public void testDoesntMatchesOtherRunRequestNonOptionalParametersNull() {
@@ -197,7 +197,7 @@ public class AutomationRunRequestTest extends BaseTest {
         Map<String,Object> map = Maps.newHashMap();
         map.put(CapabilityType.BROWSER_NAME,browser);
         map.put(CapabilityType.VERSION,"20");
-        map.put(CapabilityType.PLATFORM,Platform.MAC);
+        map.put(CapabilityType.PLATFORM, Platform.MAC);
         AutomationRunRequest first = new AutomationRunRequest(uuid,null,browser,browserVersion,os);
         Assert.assertFalse("Capabilities should NOT match",first.matchesCapabilities(map));
     }

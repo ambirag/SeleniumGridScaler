@@ -4,14 +4,14 @@
             {
                 "browserName": "firefox",
                 "maxInstances": <MAX_SESSION_FIREFOX>,
-                "instanceId": "<INSTANCE_ID>",
+                "instanceId": <INSTANCE_ID>,
                 "seleniumProtocol": "WebDriver",
                 "firefox_binary" : "/usr/local/bin/firefox"
             },
            {
                "browserName": "chrome",
                "maxInstances": <MAX_SESSION_CHROME>,
-               "instanceId": "<INSTANCE_ID>",
+               "instanceId": <INSTANCE_ID>,
                "seleniumProtocol": "WebDriver"
            }
 ],
@@ -19,12 +19,15 @@
         "maxSession": <MAX_SESSION>,
         "register": true,
         "registerCycle": 5000,
+        "nodePolling": 5000,
+        "role": "node",
+        "unregisterIfStillDownAfter": 60000,
         "hub": "<HOST_NAME>",
+        "debug": false,
         "custom": {
-            "uuid":"<UUID>",
-            "instanceId": "<INSTANCE_ID>",
-            "createdDate":"<CREATED_DATE>",
-            "createdBrowser":"<CREATED_BROWSER>",
-            "createdOs":"<CREATED_OS>"
+          "uuid":"<UUID>",
+          "createdDate":"<CREATED_DATE>",
+          "createdBrowser":"<CREATED_BROWSER>",
+          "createdOs":"<CREATED_OS>"
         }
 }

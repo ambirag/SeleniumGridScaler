@@ -55,9 +55,9 @@ public final class AutomationDynamicNode implements Comparable<AutomationDynamic
     }
 
     public AutomationDynamicNode(String uuid,String instanceId,String browser, Platform platform, String ipAddress, Date startDate, int nodeCapacity){
-        this(uuid, instanceId, browser, platform, ipAddress, startDate, nodeCapacity, null);
+    	this(uuid, instanceId, browser, platform, ipAddress, startDate, nodeCapacity, null);
     }
-
+    	
     public AutomationDynamicNode(String uuid,String instanceId,String browser, Platform platform, String ipAddress, Date startDate, int nodeCapacity, String instanceType){
         this.uuid = uuid;
         this.instanceId = instanceId;
@@ -176,13 +176,13 @@ public final class AutomationDynamicNode implements Comparable<AutomationDynamic
     public int getNodeCapacity() {
         return nodeCapacity;
     }
-
+    
     /**
-     * Returns the instance type of this node
-     * @return
-     */
+    * Returns the instance type of this node
+    * @return
+    */
     public String getInstanceType() {
-        return instanceType;
+       return instanceType;
     }
 
     /**

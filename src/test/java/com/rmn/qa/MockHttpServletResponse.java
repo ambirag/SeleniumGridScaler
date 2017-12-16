@@ -12,14 +12,12 @@
 
 package com.rmn.qa;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Locale;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Locale;
 
 /**
  * Created by mhardin on 2/6/14.
@@ -33,31 +31,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     @Override
     public void addCookie(Cookie cookie) {
 
-    }
-
-    @Override
-    public int getStatus() {
-        return 0;
-    }
-
-    @Override
-    public Collection<String> getHeaderNames() {
-        return null;
-    }
-
-    @Override
-    public void setContentLengthLong(long len) {
-
-    }
-
-    @Override
-    public Collection<String> getHeaders(String name) {
-        return null;
-    }
-
-    @Override
-    public String getHeader(String name) {
-        return null;
     }
 
     @Override
@@ -226,5 +199,30 @@ public class MockHttpServletResponse implements HttpServletResponse {
     @Override
     public Locale getLocale() {
         return null;
+    }
+
+    @Override
+    public java.util.Collection<java.lang.String> getHeaderNames() {
+        return null;
+    }
+
+    @Override
+    public java.util.Collection<java.lang.String> getHeaders(String name) {
+        return null;
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return null;
+    }
+
+    @Override
+    public int getStatus() {
+        return 0;
+    }
+
+    @Override
+    public void setContentLengthLong(long len) {
+
     }
 }

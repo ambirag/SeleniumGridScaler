@@ -31,7 +31,7 @@ import com.rmn.qa.RegistryRetriever;
 import com.rmn.qa.aws.AwsVmManager;
 
 /**
- * Registry task which registers orphaned  dynamic {@link com.rmn.qa.AutomationDynamicNode nodes}.  This can happen if the hub process restarts for whatever reason
+ * Registry task which registers orphaned dynamic {@link com.rmn.qa.AutomationDynamicNode nodes}.  This can happen if the hub process restarts for whatever reason
  * and loses track of previously registered nodes
  * @author mhardin
  */
@@ -73,6 +73,7 @@ public class AutomationOrphanedNodeRegistryTask extends AbstractAutomationCleanu
                 Map<String, String> customConfig = proxy.getConfig().custom;
                 // If the config has an instanceId in it, this means this node was dynamically started and we should
                 // track it if we are not already
+
                 if(customConfig.containsKey(AutomationConstants.INSTANCE_ID)) {
                     String instanceId = (String)customConfig.get(AutomationConstants.INSTANCE_ID);
                     AutomationRunContext context = AutomationContext.getContext();
@@ -99,14 +100,14 @@ public class AutomationOrphanedNodeRegistryTask extends AbstractAutomationCleanu
     }
 
     /**
-     * Attempts to parse the created date of the node from the custom parameters
+     * Attempts to parse the created date of the node from the custom parameter
      * @param customConfig
      * @return
      */
-    private Date getDate(Map<String,String> customConfig) {
-        String stringDate = (String)customConfig.get(AutomationConstants.CONFIG_CREATED_DATE);
+    private Date getDate(Map<String, String> customConfig) {
+        String stringDate = customConfig.get(AutomationConstants.CONFIG_CREATED_DATE);
         Date returnDate = null;
-        try{
+        try {
             returnDate = AwsVmManager.NODE_DATE_FORMAT.parse(stringDate);
         } catch (ParseException pe) {
             log.error(String.format("Error trying to parse created date [%s]: %s", stringDate, pe));

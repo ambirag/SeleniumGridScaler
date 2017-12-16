@@ -14,9 +14,9 @@ public class MockAutomationPendingNodeRegistryTask extends AutomationPendingNode
 	private ProxySet proxySet;
 
 	public MockAutomationPendingNodeRegistryTask(RegistryRetriever registryRetriever) {
-		super(registryRetriever, new MockManageVm());
+			super(registryRetriever, new MockManageVm());
 	}
-
+	
 	public MockAutomationPendingNodeRegistryTask(RegistryRetriever registryRetriever, VmManager vmManager) {
 		super(registryRetriever, vmManager);
 	}

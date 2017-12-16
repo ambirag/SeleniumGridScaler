@@ -12,10 +12,10 @@
 
 package com.rmn.qa;
 
-import org.openqa.grid.internal.ProxySet;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openqa.grid.internal.ProxySet;
 
 public class MockRequestMatcher implements RequestMatcher {
 

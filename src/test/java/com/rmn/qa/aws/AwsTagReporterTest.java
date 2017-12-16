@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -26,6 +27,11 @@ import com.rmn.qa.BaseTest;
 import junit.framework.Assert;
 
 public class AwsTagReporterTest extends BaseTest {
+	
+	@Before
+	public void reset() {
+		AwsTagReporter.TIMEOUT_IN_SECONDS = 10 * 1000;
+	}
 
     @Test
          public void testTagsAssociated() {

@@ -96,13 +96,13 @@
         <appender-ref ref="FILE" />
     </logger>
     <logger name="com.rmn.qa.AutomationRunRequest">
-        <level value="INFO"/>
-        <appender-ref ref="FILE" />
-    </logger>
-    <logger name="com.rmn.qa.AutomationUtils">
-        <level value="INFO"/>
-        <appender-ref ref="FILE" />
-    </logger>
+	    <level value="INFO"/>
+	    <appender-ref ref="FILE" />
+	</logger>
+	<logger name="com.rmn.qa.AutomationUtils">
+	    <level value="INFO"/>
+	    <appender-ref ref="FILE" />
+	</logger>
     <root>
         <level value="INFO"/>
         <appender-ref ref="STDOUT"/>

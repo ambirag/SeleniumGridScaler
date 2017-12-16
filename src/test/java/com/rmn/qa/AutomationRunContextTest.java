@@ -39,8 +39,8 @@ public class AutomationRunContextTest extends BaseTest {
     @Test
     // Tests that an old run gets cleaned up (removed)
     public void testOldRun() {
-        AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"firefox","10",Platform.LINUX,AutomationUtils.modifyDate(new Date(),-15, Calendar.MINUTE));
-         AutomationRunContext context = AutomationContext.getContext();
+    	AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"firefox","10", Platform.LINUX,AutomationUtils.modifyDate(new Date(),-15, Calendar.MINUTE));
+        AutomationRunContext context = AutomationContext.getContext();
         context.addRun(oldRequest);
 
         Assert.assertTrue("Run should exist", context.hasRun(oldRequest.getUuid()));
@@ -67,7 +67,7 @@ public class AutomationRunContextTest extends BaseTest {
     @Test
     // Tests that a new run does not get cleaned up (removed)
     public void testNewRunIE() {
-        AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"internetexplorer","10",Platform.LINUX,AutomationUtils.modifyDate(new Date(),-7, Calendar.MINUTE));
+    	AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"internetexplorer","10",Platform.LINUX,AutomationUtils.modifyDate(new Date(),-7, Calendar.MINUTE));
         AutomationRunContext context = AutomationContext.getContext();
         context.addRun(oldRequest);
 
@@ -82,7 +82,7 @@ public class AutomationRunContextTest extends BaseTest {
     @Test
     // Tests that a new run does not get cleaned up (removed)
     public void testOldRunIE() {
-        AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"internetexplorer","10",Platform.LINUX,AutomationUtils.modifyDate(new Date(),-15, Calendar.MINUTE));
+    	AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"internetexplorer","10",Platform.LINUX,AutomationUtils.modifyDate(new Date(),-15, Calendar.MINUTE));
         AutomationRunContext context = AutomationContext.getContext();
         context.addRun(oldRequest);
 
@@ -111,11 +111,11 @@ public class AutomationRunContextTest extends BaseTest {
         Map<String,String> config = new HashMap<>();
         config.put(AutomationConstants.UUID,uuid);
         proxy.setConfig(config);
-
+        
         Map<String,Object> config2 = new HashMap<>();
         config2.put(AutomationConstants.UUID,uuid);
         proxy.setConfig(config);
-
+        
         List<TestSlot> testSlots = new ArrayList<>();
         TestSlot testSlot = new TestSlot(proxy,null,null,config2);
         proxy.setTestSlots(testSlots);
@@ -143,11 +143,11 @@ public class AutomationRunContextTest extends BaseTest {
         Map<String,String> config = new HashMap<>();
         config.put(AutomationConstants.UUID,uuid);
         proxy.setConfig(config);
-
+        
         Map<String,Object> config2 = new HashMap<>();
         config2.put(AutomationConstants.UUID,uuid);
         proxy.setConfig(config);
-
+        
         List<TestSlot> testSlots = new ArrayList<>();
         TestSlot testSlot = new TestSlot(proxy,null,null,config2);
         proxy.setTestSlots(testSlots);
@@ -178,7 +178,7 @@ public class AutomationRunContextTest extends BaseTest {
     @Test
     // Tests that equals and hash code are working as expected
     public void equalsContract() {
-        EqualsVerifier.forClass(AutomationRunRequest.class).suppress(Warning.NULL_FIELDS).verify();
+        EqualsVerifier.forClass(AutomationRunRequest.class).withIgnoredFields("uuid", "threadCount", "createdDate").suppress(Warning.NULL_FIELDS).verify();
     }
 
     @Test

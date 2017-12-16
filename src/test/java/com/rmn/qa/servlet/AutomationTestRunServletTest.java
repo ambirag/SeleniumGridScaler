@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
+import org.junit.After;
 import org.junit.Test;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.internal.ProxySet;
@@ -43,6 +44,11 @@ import com.rmn.qa.MockVmManager;
 import junit.framework.Assert;
 
 public class AutomationTestRunServletTest extends BaseTest {
+
+    @After
+    public void cleanUp() {
+        AutomationContext.refreshContext();
+    }
 
     @Test
     // Makes sure that the query string parameter 'uuid' is required

@@ -62,18 +62,18 @@ public class AwsVmManager implements VmManager {
 
     private static final Logger log = LoggerFactory.getLogger(AwsVmManager.class);
     public static final DateFormat NODE_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
     public static final Platform DEFAULT_PLATFORM = Platform.UNIX;
     private AmazonEC2Client client;
     @VisibleForTesting AWSCredentials credentials;
     private Properties awsProperties;
     public static final int CHROME_THREAD_COUNT = 15;
-    public static final int FIREFOX_IE_THREAD_COUNT = 20;
+    public static final int FIREFOX_IE_THREAD_COUNT = 15;
     public static final int IE_THREAD_COUNT = 1;
-
     private String region;
 
-
     static {
+
         // Read and write dates from node config in UTC format
         NODE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -427,7 +427,7 @@ public class AwsVmManager implements VmManager {
      * @param   uuid         UUID of the test run
      * @param   hubHostName  Resolvable host name of the hub the node will register with
      * @param   browser      Browser for the requested test run
-     * @param   platform           OS for the requested test run
+     * @param   platform     OS for the requested test run
      * @param   maxSessions  Maximum simultaneous test sessions
      *
      * @return
@@ -435,8 +435,8 @@ public class AwsVmManager implements VmManager {
     @VisibleForTesting
     String getUserData(final String uuid, final String hubHostName, final String browser, final Platform platform,
             final int maxSessions) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(outputStream);
+        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ZipOutputStream zos = new ZipOutputStream(outputStream);
         ) {
 
             // Pull the node config out so we can write it to the zip file

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -237,13 +236,13 @@ public class StatusServlet extends RegistryBasedServlet {
             /*builder.append("<b>hub launched with :</b>");
             for (int i = 0; i < config.getArgs().length; i++) {
                 builder.append(config.getArgs()[i]).append(" ");
-            } */
+            }*/
 
             builder.append("<br/><b>the final configuration comes from :</b><br/>");
             builder.append("<b>the default :</b><br/>");
             builder.append(prettyHtmlPrint(tmp));
-            /*
-            builder.append("<b>updated with grid1 config :</b>");
+
+            /*builder.append("<b>updated with grid1 config :</b>");
             if (config.getGrid1Yml() != null) {
                 builder.append(config.getGrid1Yml()).append("<br/>");
                 tmp.loadFromGridYml(config.getGrid1Yml());
@@ -251,12 +250,12 @@ public class StatusServlet extends RegistryBasedServlet {
             } else {
                 builder
                         .append("No grid1 file specified. To specify one, use -grid1Yml XXX.yml where XXX.yml is a grid1 config file</br>");
-            } */
+            }*/
 
             builder.append("<br/><b>updated with hub config : </b>");
             if (config.hubConfig != null) {
                 builder.append(config.hubConfig).append("<br/>");
-                tmp=GridHubConfiguration.loadFromJSON(config.hubConfig);
+                tmp = GridHubConfiguration.loadFromJSON(config.hubConfig);
                 builder.append(prettyHtmlPrint(tmp));
             } else {
                 builder
@@ -271,6 +270,7 @@ public class StatusServlet extends RegistryBasedServlet {
     }
 
     private String key(String key) {
+        //
         // return "<abbr title='" + GridDocHelper.getHubParam(key) + "'>" + key + " : </abbr>";
         // no help for Selenium V3
         return "<abbr title='" + "No help specified for " + key + "'>" + key + " : </abbr>";
@@ -288,8 +288,8 @@ public class StatusServlet extends RegistryBasedServlet {
 
         b.append(key("newSessionWaitTimeout")).append(config.newSessionWaitTimeout)
                 .append("</br>");
-        //no grid1mapping
-        //b.append(key("grid1Mapping")).append(config.getGrid1Mapping()).append("</br>");
+        // comment out as no grid1Mapping
+        // b.append(key("grid1Mapping")).append(config.getGrid1Mapping()).append("</br>");
         b.append(key("throwOnCapabilityNotPresent")).append(config.throwOnCapabilityNotPresent)
                 .append("</br>");
 
@@ -307,7 +307,7 @@ public class StatusServlet extends RegistryBasedServlet {
             b.append(s.getClass().getCanonicalName()).append(",");
         }
         b.append("</br></br>");
-        b.append("<u>all customs :</u></br></br>");
+        b.append("<u>all custom :</u></br></br>");
         List<String> keys = new ArrayList<String>();
         keys.addAll(config.custom.keySet());
         Collections.sort(keys);

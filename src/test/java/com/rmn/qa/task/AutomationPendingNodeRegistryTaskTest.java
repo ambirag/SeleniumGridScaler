@@ -144,5 +144,5 @@ public class AutomationPendingNodeRegistryTaskTest extends BaseTest {
 		Assert.assertTrue("Node should still be in the pending set as it wasn't removed", AutomationContext.getContext().pendingNodeExists(instanceId));
 		Assert.assertEquals("Instance should have a terminated status", AutomationDynamicNode.STATUS.RUNNING, node.getStatus());
 	}
-
+	
 }

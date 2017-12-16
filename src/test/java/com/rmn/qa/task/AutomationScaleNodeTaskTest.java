@@ -22,7 +22,6 @@ import junit.framework.Assert;
  */
 public class AutomationScaleNodeTaskTest extends BaseTest {
 
-
 	@Test
 	// Handle
 	public void testNoQueuedRequests() {
@@ -31,35 +30,6 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		matcher.setThreadsToReturn(10);
 		MockAutomationScaleNodeTask task = new MockAutomationScaleNodeTask(null, manageEc2);
 		task.setDesiredCapabilities(Collections.emptyList());
-		task.run();
-		Assert.assertEquals("No nodes should have been started", 0, task.getNodesStarted().size());
-	}
-
-	@Test
-	// Unsupported browser on a queued request should not result in any scaled capacity
-	public void testUnsupportedBrowserNoNodesStarted() {
-		MockVmManager manageEc2 = new MockVmManager();
-		MockRequestMatcher matcher = new MockRequestMatcher();
-		matcher.setThreadsToReturn(10);
-		MockAutomationScaleNodeTask task = new MockAutomationScaleNodeTask(null, manageEc2);
-		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability(CapabilityType.BROWSER_NAME, "safari");
-		task.setDesiredCapabilities(Arrays.asList(capabilities));
-		task.run();
-		Assert.assertEquals("No nodes should have been started", 0, task.getNodesStarted().size());
-	}
-
-	@Test
-	// If an unsupported platform is queued, no node should be started
-	public void testUnsupportedPlatformNoNodesStarted() {
-		MockVmManager manageEc2 = new MockVmManager();
-		MockRequestMatcher matcher = new MockRequestMatcher();
-		matcher.setThreadsToReturn(10);
-		MockAutomationScaleNodeTask task = new MockAutomationScaleNodeTask(null, manageEc2);
-		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability(CapabilityType.BROWSER_NAME, "chrome");
-		capabilities.setPlatform(Platform.MAC);
-		task.setDesiredCapabilities(Arrays.asList(capabilities));
 		task.run();
 		Assert.assertEquals("No nodes should have been started", 0, task.getNodesStarted().size());
 	}
@@ -81,6 +51,35 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		Assert.assertEquals("Started platform should be correct", Platform.ANY, task.getPlatformStarted().get(0));
 		Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(0).intValue());
 	}
+	
+	@Test
+	// Unsupported browser on a queued request should not result in any scaled capacity
+	public void testUnsupportedBrowserNoNodesStarted() {
+		MockVmManager manageEc2 = new MockVmManager();
+		MockRequestMatcher matcher = new MockRequestMatcher();
+		matcher.setThreadsToReturn(10);
+		MockAutomationScaleNodeTask task = new MockAutomationScaleNodeTask(null, manageEc2);
+		DesiredCapabilities capabilities = new DesiredCapabilities();
+		capabilities.setCapability(CapabilityType.BROWSER_NAME, "safari");
+		task.setDesiredCapabilities(Arrays.asList(capabilities));
+		task.run();
+		Assert.assertEquals("No nodes should have been started", 0, task.getNodesStarted().size());
+	}
+	
+	@Test
+	// If an unsupported platform is queued, no node should be started
+	public void testUnsupportedPlatformNoNodesStarted() {
+		MockVmManager manageEc2 = new MockVmManager();
+		MockRequestMatcher matcher = new MockRequestMatcher();
+		matcher.setThreadsToReturn(10);
+		MockAutomationScaleNodeTask task = new MockAutomationScaleNodeTask(null, manageEc2);
+		DesiredCapabilities capabilities = new DesiredCapabilities();
+		capabilities.setCapability(CapabilityType.BROWSER_NAME, "chrome");
+		capabilities.setPlatform(Platform.MAC);
+		task.setDesiredCapabilities(Arrays.asList(capabilities));
+		task.run();
+		Assert.assertEquals("No nodes should have been started", 0, task.getNodesStarted().size());
+	}
 
 	@Test
 	// If a queued request specifies ANY, we should handle starting up a new node
@@ -92,15 +91,15 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
 		capabilities.setCapability(CapabilityType.BROWSER_NAME, "chrome");
 		capabilities.setCapability(CapabilityType.PLATFORM, Platform.ANY);
-		task.setDesiredCapabilities(Arrays.asList(capabilities));
-		task.run();
-		Assert.assertEquals("Nodes should have been started", 1, task.getNodesStarted().size());
-		Assert.assertNotNull("Nodes should have been started", task.getNodesStarted().get(0));
-		Assert.assertEquals("Started browser should be correct", "chrome", task.getBrowserStarted().get(0));
-		Assert.assertEquals("Started platform should be correct", Platform.ANY, task.getPlatformStarted().get(0));
-		Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(0).intValue());
+			task.setDesiredCapabilities(Arrays.asList(capabilities));
+			task.run();
+			Assert.assertEquals("Nodes should have been started", 1, task.getNodesStarted().size());
+			Assert.assertNotNull("Nodes should have been started", task.getNodesStarted().get(0));
+			Assert.assertEquals("Started browser should be correct", "chrome", task.getBrowserStarted().get(0));
+			Assert.assertEquals("Started platform should be correct", Platform.ANY, task.getPlatformStarted().get(0));
+			Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(0).intValue());
 	}
-
+		
 	@Test
 	// If multiple requests have different platforms from the same family, only one type of platform should start
 	public void testMultiplePlatformsStartOneTypeOfNode() {
@@ -121,6 +120,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		Assert.assertEquals("Started browser should be correct", "chrome", task.getBrowserStarted().get(0));
 		Assert.assertEquals("Started platform should be correct", Platform.UNIX, task.getPlatformStarted().get(0));
 	}
+	
 	@Test
 	// If multiple requests have different platforms from different families, multiple types of nodes should start
 	public void testDifferentPlatformsStartDifferentNodes() {
@@ -145,7 +145,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(0).intValue());
 		Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(1).intValue());
 	}
-
+	
 	@Test
 	// Happy path, make sure queued requests for linux result in started instances
 	public void testLinuxPlatformNodeStarted() {
@@ -164,7 +164,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		Assert.assertEquals("Started platform should be correct", Platform.UNIX, task.getPlatformStarted().get(0));
 		Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(0).intValue());
 	}
-
+	
 	@Test
 	// Test that if there are nodes pending startup that haven't come online, their load is correctly factored into future
 	// scale activity
@@ -185,7 +185,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		task.run();
 		Assert.assertEquals("Only 2 nodes should start as pending count should be subtracted from count", 2, task.getNodesStarted().size());
 	}
-
+	
 	@Test
 	// Test that if there are nodes pending startup that haven't come online, their load is correctly factored into future
 	// scale activity
@@ -205,7 +205,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		task.run();
 		Assert.assertEquals("Nodes should have been started", 2, task.getNodesStarted().size());
 	}
-
+	
 	@Test
 	// Make sure after a node has registers with the hub, that it is no longer subtracted from scale activity
 	public void testPendingLoadDoesntSubtractsFromQueuedRequestsNodesStarted() {
@@ -226,7 +226,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		task.run();
 		Assert.assertEquals("Only 2 nodes should start as pending count should be subtracted from count", 2, task.getNodesStarted().size());
 	}
-
+	
 	@Test
 	// Make sure that nodes pending startup don't count towards other non-matching queued requests
 	public void testPendingLoadDoesntSubtractsFromQueuedRequests() {
@@ -248,7 +248,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		task.run();
 		Assert.assertEquals("Only 2 nodes should start as pending count should be subtracted from count", 4, task.getNodesStarted().size());
 	}
-
+	
 	@Test
 	// Make sure a higher specified platform dumbs down to its correct family (e.g. LINUX -> UNIX)
 	public void testFamilyPlatformNodeStarted() {
@@ -267,7 +267,7 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		Assert.assertEquals("Started platform should be correct", Platform.UNIX, task.getPlatformStarted().get(0));
 		Assert.assertEquals("Number of nodes started should be correct", 1, task.getNumThreadsStarted().get(0).intValue());
 	}
-
+	
 	@Test
 	// Tests that multiple queued requests result in multiple nodes started in one task pass
 	public void testMultipleNodesStartedAtOnce() {
@@ -278,10 +278,10 @@ public class AutomationScaleNodeTaskTest extends BaseTest {
 		DesiredCapabilities capabilities = new DesiredCapabilities();
 		capabilities.setCapability(CapabilityType.BROWSER_NAME, "chrome");
 		capabilities.setCapability(CapabilityType.PLATFORM, Platform.ANY);
-		task.setDesiredCapabilities(Arrays.asList(capabilities, capabilities));
-		task.run();
-		Assert.assertEquals("Number of threads should be correct", 1, task.getNumThreadsStarted().size());
-		Assert.assertEquals("Nodes should have been started", 2, task.getNumThreadsStarted().get(0).intValue());
+	 	task.setDesiredCapabilities(Arrays.asList(capabilities, capabilities));
+	 	task.run();
+	 	Assert.assertEquals("Number of threads should be correct", 1, task.getNumThreadsStarted().size());
+	 	Assert.assertEquals("Nodes should have been started", 2, task.getNumThreadsStarted().get(0).intValue());
 		Assert.assertEquals("Started browser should be correct", "chrome", task.getBrowserStarted().get(0));
 		Assert.assertEquals("Started platform should be correct", Platform.ANY, task.getPlatformStarted().get(0));
 	}

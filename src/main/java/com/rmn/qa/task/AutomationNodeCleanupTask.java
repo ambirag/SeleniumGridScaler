@@ -24,12 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.openqa.grid.internal.utils.configuration.GridNodeConfiguration;
+
 import org.openqa.grid.internal.ProxySet;
 import org.openqa.grid.internal.RemoteProxy;
 import org.openqa.grid.internal.TestSlot;
+import org.openqa.grid.internal.utils.configuration.GridNodeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.rmn.qa.AutomationConstants;
 import com.rmn.qa.AutomationContext;
@@ -54,6 +56,8 @@ public class AutomationNodeCleanupTask extends AbstractAutomationCleanupTask {
     private RequestMatcher requestMatcher;
     @VisibleForTesting
     static final String NAME = "Node Cleanup Task";
+
+    protected Map<String, Long> nodeEmptyTime = new HashMap<>();
 
     /**
      * Constructs a cleanup task with the specified options
@@ -101,33 +105,87 @@ public class AutomationNodeCleanupTask extends AbstractAutomationCleanupTask {
                 String instanceId = iterator.next();
                 AutomationDynamicNode node = nodes.get(instanceId);
                 AutomationDynamicNode.STATUS nodeStatus = node.getStatus();
-                // If the current time is after the scheduled end time for this node and the node is still running, go ahead and queue it to be removed
-                if(nodeStatus == AutomationDynamicNode.STATUS.RUNNING && nowDate.after(node.getEndDate())) {
-                    if(canNodeShutDown(node)) {
-                        log.info(String.format("Updating node %s to 'EXPIRED' status.  Start date [%s] End date [%s]",instanceId,node.getStartDate(),node.getEndDate()));
-                        node.updateStatus(AutomationDynamicNode.STATUS.EXPIRED);
+
+                if (AutomationUtils.terminateBySec) {
+                    // If a node has no test runs for 12mins, mark the node "expired" and terminate it after 15mins (check if any test is running before terminating)
+                    if (nodeStatus == AutomationDynamicNode.STATUS.RUNNING) {
+                        if (canNodeShutDown(node)) {
+                            if (nodeEmptyTime.get(instanceId) == null) {
+                                nodeEmptyTime.put(instanceId, System.currentTimeMillis());
+                            } else {
+                                // If a node has no test runs for 12mins, mark the node "expired"
+                                if (((System.currentTimeMillis() - nodeEmptyTime.get(instanceId)) >= AutomationRunContext.EXPIRED_LIFE_LENGTH_IN_MIL_SECONDS)) {
+                                    log.info(String.format("TerminateBySec: Updating node %s to 'EXPIRED' status after 7 minutes.  Start date [%s]", instanceId, node.getStartDate()));
+                                    node.updateStatus(AutomationDynamicNode.STATUS.EXPIRED);
+                                    log.info("TerminateBySec: override the node empty time with current time millis");
+                                    nodeEmptyTime.put(instanceId, System.currentTimeMillis());
+                                }
+                            }
+                        } else {
+                            // if node is not empty, remove it from the tracking.
+                            nodeEmptyTime.remove(instanceId);
+                        }
+
+                    } else if (nodeStatus == AutomationDynamicNode.STATUS.EXPIRED) {
+                        if (isNodeCurrentlyEmpty(instanceId)) {
+                            if (nodeEmptyTime.get(instanceId) != null) {
+                                if ((System.currentTimeMillis() - nodeEmptyTime.get(instanceId)) >= AutomationRunContext.TERMINATE_LIFE_LENGTH_IN_MIL_SECONDS) {
+                                    log.info(String.format("TerminateBySec: Terminating node %s and updating status to 'TERMINATED'", instanceId));
+                                    // Terminate the instance inside AWS
+                                    ec2.terminateInstance(instanceId);
+                                    // Also remove the node from Selenium's tracking set as there have been cases where the node sticks around
+                                    // and slows down the console as the node can on longer be pinged
+                                    removeFromProxy(getProxySet(), instanceId);
+                                    log.info(String.format("TerminateBySec: Removed node [%s] from internal tracking set", instanceId));
+                                    node.updateStatus(AutomationDynamicNode.STATUS.TERMINATED);
+                                    nodeEmptyTime.put(instanceId, System.currentTimeMillis());
+                                }
+                            } else {
+                                // TODO what to do? does it happen?
+                            }
+                        } else {
+                            log.info(String.format("TerminateBySec: Node [%s] was still running after initial allotted time.  Resetting status.", instanceId));
+                            node.updateStatus(AutomationDynamicNode.STATUS.RUNNING);
+                            // remove it from the tracking.
+                            nodeEmptyTime.remove(instanceId);
+                        }
+                    } else if (nodeStatus == AutomationDynamicNode.STATUS.TERMINATED) {
+                        // If the current time is more than 30 minutes after the node was terminated, we should remove it from being tracked
+                        if (nodeEmptyTime.containsKey(instanceId) && System.currentTimeMillis() > nodeEmptyTime.get(instanceId) + (30 * 60 * 1000)) {
+                            // Remove it, and this will remove from tracking since we're referencing the collection
+                            log.info(String.format("Removing node [%s] from internal tracking set", instanceId));
+                            iterator.remove();
+                        }
                     }
-                } else if (nodeStatus == AutomationDynamicNode.STATUS.EXPIRED) {
-                    // See if we're in the next billing cycle (create + 55 + 6, which should equal 61 minutes and would safely be in the next billing cycle)
-                    if (AutomationUtils.isCurrentTimeAfterDate(node.getEndDate(), 6, Calendar.MINUTE)) {
-                        node.incrementEndDateByOneHour();
-                        log.info(String.format("Node [%s] was still running after initial allotted time.  Resetting status and increasing end date to %s.", instanceId, node.getEndDate()));
-                        node.updateStatus(AutomationDynamicNode.STATUS.RUNNING);
-                    } else if (isNodeCurrentlyEmpty(instanceId)) {
-                        log.info(String.format("Terminating node %s and updating status to 'TERMINATED'", instanceId));
-                        // Delete node
-                        ec2.terminateInstance(instanceId);
-                        // Also remove the node from Selenium's tracking set as there have been cases where the node sticks around
-                        // and slows down the console as the node can on longer be pinged
-                        removeFromProxy(getProxySet(), instanceId);
-                        node.updateStatus(AutomationDynamicNode.STATUS.TERMINATED);
-                    }
-                } else if (nodeStatus == AutomationDynamicNode.STATUS.TERMINATED) {
-                    // If the current time is more than 30 minutes after the node end date, we should remove it from being tracked
-                    if (System.currentTimeMillis() > node.getEndDate().getTime() + (30 * 60 * 1000)) {
-                        // Remove it, and this will remove from tracking since we're referencing the collection
-                        log.info(String.format("Removing node [%s] from internal tracking set", instanceId));
-                        iterator.remove();
+                } else {
+                    // If the current time is after the scheduled end time for this node and the node is still running, go ahead and queue it to be removed
+                    if (nodeStatus == AutomationDynamicNode.STATUS.RUNNING && nowDate.after(node.getEndDate())) {
+                        if (canNodeShutDown(node)) {
+                            log.info(String.format("Updating node %s to 'EXPIRED' status.  Start date [%s] End date [%s]", instanceId, node.getStartDate(), node.getEndDate()));
+                            node.updateStatus(AutomationDynamicNode.STATUS.EXPIRED);
+                        }
+                    } else if (nodeStatus == AutomationDynamicNode.STATUS.EXPIRED) {
+                        // See if we're in the next billing cycle (create + 55 + 6, which should equal 61 minutes and would safely be in the next billing cycle)
+                        if (AutomationUtils.isCurrentTimeAfterDate(node.getEndDate(), 6, Calendar.MINUTE)) {
+                            node.incrementEndDateByOneHour();
+                            log.info(String.format("Node [%s] was still running after initial allotted time.  Resetting status and increasing end date to %s.", instanceId, node.getEndDate()));
+                            node.updateStatus(AutomationDynamicNode.STATUS.RUNNING);
+                        } else if (isNodeCurrentlyEmpty(instanceId)) {
+                            log.info(String.format("Terminating node %s and updating status to 'TERMINATED'", instanceId));
+                            // Delete node
+                            ec2.terminateInstance(instanceId);
+                            // Also remove the node from Selenium's tracking set as there have been cases where the node sticks around
+                            // and slows down the console as the node can on longer be pinged
+                            removeFromProxy(getProxySet(), instanceId);
+                            node.updateStatus(AutomationDynamicNode.STATUS.TERMINATED);
+                        }
+                    } else if (nodeStatus == AutomationDynamicNode.STATUS.TERMINATED) {
+                        // If the current time is more than 30 minutes after the node end date, we should remove it from being tracked
+                        if (System.currentTimeMillis() > node.getEndDate().getTime() + (30 * 60 * 1000)) {
+                            // Remove it, and this will remove from tracking since we're referencing the collection
+                            log.info(String.format("Removing node [%s] from internal tracking set", instanceId));
+                            iterator.remove();
+                        }
                     }
                 }
             }

@@ -38,8 +38,10 @@ public final class AutomationRunContext {
 
     private static final Logger log = LoggerFactory.getLogger(AutomationRunContext.class);
 
-    private static final int CLEANUP_LIFE_LENGTH_IN_SECONDS = 420; // 7 minutes
     public static final int PENDING_NODE_EXPIRATION_TIME_IN_MINUTES = 20;
+    private static final int CLEANUP_LIFE_LENGTH_IN_SECONDS = 420; // 7 minutes
+    public static final int EXPIRED_LIFE_LENGTH_IN_MIL_SECONDS = 7 * 60 * 1000; // 7 minutes
+    public static final int TERMINATE_LIFE_LENGTH_IN_MIL_SECONDS = 7 * 60 * 1000; // 7 minutes
     private Map<String, AutomationRunRequest> requests = Maps.newConcurrentMap();
     private Map<String, AutomationDynamicNode> nodes = Maps.newConcurrentMap();
     private Map<String, AutomationDynamicNode> pendingStartupNodes = Maps.newConcurrentMap(); // Nodes that are currently starting up and have not registered yet
@@ -314,7 +316,7 @@ public final class AutomationRunContext {
      * @param node
      */
     public void addPendingNode(AutomationDynamicNode node) {
-        pendingStartupNodes.put(node.getInstanceId(), node);
+    	pendingStartupNodes.put(node.getInstanceId(), node);
     }
 
     /**
@@ -333,7 +335,7 @@ public final class AutomationRunContext {
     public boolean pendingNodeExists(String amiId) {
         return pendingStartupNodes.containsKey(amiId);
     }
-
+    
     /**
      * Removes nodes from the pending collection if they haven't come online after 20 minutes
      * @param vmManager

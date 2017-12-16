@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.remote.CapabilityType;
@@ -29,6 +30,11 @@ import junit.framework.Assert;
  * Created by mhardin on 4/25/14.
  */
 public class AutomationCapabilityMatcherTest extends BaseTest {
+	
+	@Before
+	public void reset() {
+		AutomationContext.refreshContext();
+	}
 
     @Test
     public void testMatches() {

@@ -18,7 +18,6 @@ import org.openqa.grid.internal.RemoteProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.openqa.grid.internal.utils.configuration.GridNodeConfiguration;
 import com.google.common.annotations.VisibleForTesting;
 import com.rmn.qa.AutomationConstants;
 import com.rmn.qa.AutomationContext;
@@ -28,7 +27,7 @@ import com.rmn.qa.RegistryRetriever;
 import com.rmn.qa.aws.VmManager;
 
 /**
- * Registry task which registers dynamic {@link AutomationDynamicNode nodes} as they come online
+ * * Registry task which registers dynamic {@link AutomationDynamicNode nodes} as they come online
  *
  * @author mhardin
  */

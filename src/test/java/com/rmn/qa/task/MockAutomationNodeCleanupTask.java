@@ -36,12 +36,12 @@ public class MockAutomationNodeCleanupTask extends AutomationNodeCleanupTask {
     public void setProxySet(ProxySet proxySet) {
         this.proxySet = proxySet;
     }
-
+    
     @Override
     protected void removeProxy(RemoteProxy proxy) {
         proxyRemoved = true;
     }
-
+    
     public boolean isProxyRemoved() {
         return proxyRemoved;
     }

@@ -24,6 +24,7 @@ public class AutomationDynamicNodeTest extends BaseTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(AutomationDynamicNode.class).suppress(Warning.NULL_FIELDS,Warning.NONFINAL_FIELDS).verify();
+        EqualsVerifier.forClass(AutomationDynamicNode.class).withIgnoredFields("browser", "platform", "ipAddress", "startDate", "endDate", "nodeCapacity", "status", "instanceType")
+        	.suppress(Warning.NULL_FIELDS,Warning.NONFINAL_FIELDS).verify();
     }
 }

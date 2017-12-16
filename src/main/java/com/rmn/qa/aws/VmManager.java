@@ -33,7 +33,7 @@ public interface VmManager {
      * @return
      */
     // TODO Refactor into AutomationRunRequest
-    List<Instance> launchNodes(String uuid, Platform platform, String browser, String hubHostName, int nodeCount, int maxSessions) throws NodesCouldNotBeStartedException;
+	List<Instance> launchNodes(String uuid, Platform platform, String browser, String hubHostName, int nodeCount, int maxSessions) throws NodesCouldNotBeStartedException;
 
     /**
      * Terminates the specified instance
