@@ -275,9 +275,9 @@
     </reporting>
 
     <scm>
-        <url>scm:git:git@ewegithub.sb.karmalab.net:EWE/SeleniumGridScaler.git</url>
-        <connection>scm:git:git@ewegithub.sb.karmalab.net:EWE/SeleniumGridScaler.git</connection>
-        <developerConnection>scm:git:git@ewegithub.sb.karmalab.net:EWE/SeleniumGridScaler.git</developerConnection>
+        <url>scm:git:git@github.com:mhardin/SeleniumGridScaler.git</url>
+        <connection>scm:git:git@github.com:mhardin/SeleniumGridScaler.git</connection>
+        <developerConnection>scm:git:git@github.com:mhardin/SeleniumGridScaler.git</developerConnection>
         <tag>0.9</tag>
     </scm>
 
