@@ -11,16 +11,16 @@
  */
 package com.rmn.qa;
 
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openqa.grid.internal.ProxySet;
 import org.openqa.grid.internal.RemoteProxy;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Computes how many free/available resources there are for a given browser, browser version, and OS
@@ -49,11 +49,7 @@ public class AutomationRequestMatcher implements RequestMatcher {
             int runningSessions = 0;
             int matchingRunningSessions = 0;
             int maxNodeThreadsAvailable = proxy.getMaxNumberOfConcurrentTestSessions();
-            Map<String,Object> config = proxy.getConfig();
-            String instanceId = null;
-            if(config.containsKey(AutomationConstants.INSTANCE_ID)) {
-                instanceId = (String)config.get(AutomationConstants.INSTANCE_ID);
-            }
+            String instanceId = proxy.getConfig().custom.get(AutomationConstants.INSTANCE_ID);
             boolean nodeMarkedForTermination = false;
             if(instanceId != null) {
                 AutomationDynamicNode node = AutomationContext.getContext().getNode(instanceId);

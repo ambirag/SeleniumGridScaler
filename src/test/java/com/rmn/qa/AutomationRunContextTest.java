@@ -12,13 +12,10 @@
 
 package com.rmn.qa;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import junit.framework.Assert;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.junit.After;
 import org.junit.Test;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.internal.ProxySet;
@@ -27,19 +24,27 @@ import org.openqa.grid.internal.utils.CapabilityMatcher;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.remote.CapabilityType;
 
-import junit.framework.Assert;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mhardin on 5/1/14.
  */
-public class AutomationRunContextTest extends BaseTest {
+public class AutomationRunContextTest {
+
+    @After()
+    public void cleanUp() {
+        AutomationContext.refreshContext();
+    }
 
     @Test
     // Tests that an old run gets cleaned up (removed)
     public void testOldRun() {
-        AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"firefox","10", Platform.LINUX,AutomationUtils.modifyDate(new Date(),-5, Calendar.MINUTE));
+        AutomationRunRequest oldRequest = new AutomationRunRequest("uuid",10,"firefox","10",Platform.LINUX,AutomationUtils.modifyDate(new Date(),-15, Calendar.MINUTE));
         AutomationRunContext context = AutomationContext.getContext();
         context.addRun(oldRequest);
 
@@ -108,13 +113,18 @@ public class AutomationRunContextTest extends BaseTest {
         CapabilityMatcher matcher = new AutomationCapabilityMatcher();
         proxy.setCapabilityMatcher(matcher);
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<>();
         config.put(AutomationConstants.UUID,uuid);
         proxy.setConfig(config);
+
+        Map<String,Object> config2 = new HashMap<>();
+        config2.put(AutomationConstants.UUID,uuid);
+        proxy.setConfig(config);
+
         List<TestSlot> testSlots = new ArrayList<>();
-        TestSlot testSlot = new TestSlot(proxy,null,null,config);
+        TestSlot testSlot = new TestSlot(proxy,null,null,config2);
         proxy.setTestSlots(testSlots);
-        testSlot.getNewSession(config);
+        testSlot.getNewSession(config2);
         testSlots.add(testSlot);
         proxySet.add(proxy);
         context.cleanUpRunRequests(proxySet);
@@ -135,11 +145,16 @@ public class AutomationRunContextTest extends BaseTest {
         CapabilityMatcher matcher = new AutomationCapabilityMatcher();
         proxy.setCapabilityMatcher(matcher);
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<>();
         config.put(AutomationConstants.UUID,uuid);
         proxy.setConfig(config);
+
+        Map<String,Object> config2 = new HashMap<>();
+        config2.put(AutomationConstants.UUID,uuid);
+        proxy.setConfig(config);
+
         List<TestSlot> testSlots = new ArrayList<>();
-        TestSlot testSlot = new TestSlot(proxy,null,null,config);
+        TestSlot testSlot = new TestSlot(proxy,null,null,config2);
         proxy.setTestSlots(testSlots);
         testSlots.add(testSlot);
         proxySet.add(proxy);
@@ -246,7 +261,7 @@ public class AutomationRunContextTest extends BaseTest {
         capabilities.put(CapabilityType.PLATFORM,"linux");
         capabilities.put(CapabilityType.BROWSER_NAME,"chrome");
         capabilities.put(AutomationConstants.UUID,uuid);
-        AutomationRunRequest request = new AutomationRunRequest(uuid,10,"chrome","23",Platform.LINUX, AutomationUtils.modifyDate(new Date(),-5,Calendar.MINUTE));
+        AutomationRunRequest request = new AutomationRunRequest(uuid,10,"chrome","23", Platform.LINUX, AutomationUtils.modifyDate(new Date(),-5,Calendar.MINUTE));
         runContext.addRun(request);
         TestSlot testSlot = new TestSlot(proxy, SeleniumProtocol.WebDriver,null,capabilities);
         testSlot.getNewSession(capabilities);

@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -25,11 +23,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections4.CollectionUtils;
+import com.beust.jcommander.internal.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.grid.internal.ProxySet;
 import org.openqa.grid.internal.Registry;
-import org.openqa.grid.selenium.GridLauncher;
+import org.openqa.grid.selenium.GridLauncherV3;
 import org.openqa.grid.web.servlet.RegistryBasedServlet;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.remote.BrowserType;
@@ -37,14 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.ec2.model.Instance;
-import com.google.common.collect.Lists;
 import com.rmn.qa.AutomationConstants;
 import com.rmn.qa.AutomationContext;
 import com.rmn.qa.AutomationDynamicNode;
 import com.rmn.qa.AutomationRequestMatcher;
 import com.rmn.qa.AutomationRunRequest;
 import com.rmn.qa.AutomationUtils;
-import com.rmn.qa.BrowserPlatformPair;
 import com.rmn.qa.NodesCouldNotBeStartedException;
 import com.rmn.qa.RegistryRetriever;
 import com.rmn.qa.RequestMatcher;
@@ -170,9 +166,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
         String osRequested = request.getParameter("os");
         String threadCount = request.getParameter("threadCount");
         String uuid = request.getParameter(AutomationConstants.UUID);
-        BrowserPlatformPair browserPlatformPairRequest;
         Platform requestedPlatform;
-
         // Return a 400 if any of the required parameters are not passed in
         // Check for uuid first as this is the most important variable
         if (uuid == null) {
@@ -204,13 +198,9 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
                 return;
             }
         }
-
         Integer threadCountRequested = Integer.valueOf(threadCount);
-
         AutomationRunRequest runRequest = new AutomationRunRequest(uuid, threadCountRequested, browserRequested, browserVersion, requestedPlatform);
-        browserPlatformPairRequest = new BrowserPlatformPair(browserRequested, requestedPlatform);
-
-        log.info(String.format("Server request [%s] received.", runRequest));
+        log.info(String.format("Server request received.  Browser [%s] - Requested Node Count [%s] - Request UUID [%s]", browserRequested, threadCountRequested, uuid));
         boolean amisNeeded;
         int amiThreadsToStart=0;
         int currentlyAvailableNodes;
@@ -232,8 +222,8 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
                 amiThreadsToStart = threadCountRequested - currentlyAvailableNodes;
             }
             // If the browser requested is not supported by AMIs, we need to not unnecessarily spin up AMIs
-            if(amisNeeded && !AutomationUtils.browserAndPlatformSupported(browserPlatformPairRequest)) {
-                response.sendError(HttpServletResponse.SC_GONE,"Request cannot be fulfilled and browser and platform is not supported by AMIs");
+            if(amisNeeded && !browserSupportedByAmis(browserRequested)) {
+                response.sendError(HttpServletResponse.SC_GONE,"Request cannot be fulfilled and browser is not supported by AMIs");
                 return;
             }
             // Add the run to our context so we can track it
@@ -268,24 +258,6 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
         }
     }
 
-    // Convenience method for deleting all/specific nodes when developing locally
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        log.warn("Call received to delete all instances");
-        Map<String,AutomationDynamicNode> nodes = AutomationContext.getContext().getNodes();
-        if (nodes != null && !CollectionUtils.isEmpty(nodes.keySet())) {
-            Iterator<String> iterator = nodes.keySet().iterator();
-            while (iterator.hasNext()) {
-                String instanceId = iterator.next();
-                log.warn("Terminating instance: " + instanceId);
-                ec2.terminateInstance(instanceId);
-                iterator.remove();
-            }
-        } else {
-            log.warn("No nodes to terminate.");
-        }
-    }
-
     /**
      * Starts up AMIs
      * @param threadCountRequested
@@ -311,8 +283,12 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
             if(AutomationUtils.lowerCaseMatch(BrowserType.CHROME,browser)) {
                 numThreadsPerMachine = AwsVmManager.CHROME_THREAD_COUNT;
                 //TODO Browser Enum replacement here
-            } else if (AutomationUtils.lowerCaseMatch(BrowserType.IE,browser) || AutomationUtils.lowerCaseMatch(BrowserType.FIREFOX,browser)) {
-                numThreadsPerMachine= AwsVmManager.FIREFOX_IE_THREAD_COUNT;
+            } else if (AutomationUtils.lowerCaseMatch(BrowserType.FIREFOX,browser)) {
+                numThreadsPerMachine = AwsVmManager.FIREFOX_IE_THREAD_COUNT; //This is actually for FIREFOX only TODO: remove IE from the variable
+            }
+            else if (AutomationUtils.lowerCaseMatch(BrowserType.IE.replaceFirst(" ",""),browser)) {
+                numThreadsPerMachine= AwsVmManager.IE_THREAD_COUNT;
+
             } else {
                 log.warn("Unsupported browser: " + browser);
                 throw new NodesCouldNotBeStartedException("Unsupported browser: " + browser);
@@ -335,13 +311,21 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
                 AutomationContext.getContext().addPendingNode(createdNode);
                 log.info("Node instance id: " + instance.getInstanceId());
                 AutomationContext.getContext().addNode(createdNode);
-                createdNodes.add(createdNode);
             }
             return createdNodes;
         } catch(Exception e) {
-            log.error("Error trying to start nodes: ",e);
+            log.error("Error trying to start nodes: " + e);
             throw new NodesCouldNotBeStartedException("Error trying to start nodes",e);
         }
+    }
+
+    /**
+     * Returns true if the requested browser can be used within AMIs, and false otherwise
+     * @param browser
+     * @return
+     */
+    public static boolean browserSupportedByAmis(String browser) {
+        return AutomationUtils.lowerCaseMatch(BrowserType.CHROME,browser) || AutomationUtils.lowerCaseMatch(BrowserType.FIREFOX,browser) || AutomationUtils.lowerCaseMatch("internetexplorer",browser);
     }
 
     @Override
@@ -352,7 +336,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
     // Run this for local testing
     public static void main(String args[]) {
         try{
-            GridLauncher.main(args);
+            GridLauncherV3.main(args);
         }catch(Exception e) {
             log.error("Error starting up grid: " + e);
         }

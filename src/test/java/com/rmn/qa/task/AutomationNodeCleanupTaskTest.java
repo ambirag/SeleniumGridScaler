@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Test;
 import org.openqa.grid.common.SeleniumProtocol;
 import org.openqa.grid.internal.ProxySet;
@@ -32,14 +33,18 @@ import com.rmn.qa.AutomationDynamicNode;
 import com.rmn.qa.AutomationRequestMatcher;
 import com.rmn.qa.AutomationRunRequest;
 import com.rmn.qa.AutomationUtils;
-import com.rmn.qa.BaseTest;
 import com.rmn.qa.MockRemoteProxy;
 import com.rmn.qa.MockRequestMatcher;
 import com.rmn.qa.MockVmManager;
 
 import junit.framework.Assert;
 
-public class AutomationNodeCleanupTaskTest extends BaseTest {
+public class AutomationNodeCleanupTaskTest {
+
+    @After
+    public void tearDown() {
+        AutomationContext.refreshContext();
+    }
 
     @Test
     // Tests that the hard coded name of the task is correct
@@ -90,7 +95,7 @@ public class AutomationNodeCleanupTaskTest extends BaseTest {
         AutomationContext.getContext().addNode(node);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<String, Object>();
+        Map<String,String> config = new HashMap<String, String>();
         config.put(AutomationConstants.INSTANCE_ID,nodeId);
         proxy.setConfig(config);
         proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
@@ -118,7 +123,7 @@ public class AutomationNodeCleanupTaskTest extends BaseTest {
         AutomationContext.getContext().addNode(node);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<String, Object>();
+        Map<String,String> config = new HashMap<String, String>();
         config.put(AutomationConstants.INSTANCE_ID,nodeId);
         proxy.setConfig(config);
         proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
@@ -179,7 +184,7 @@ public class AutomationNodeCleanupTaskTest extends BaseTest {
         AutomationContext.getContext().addNode(node);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<String, Object>();
+        Map<String,String> config = new HashMap<String, String>();
         config.put(AutomationConstants.INSTANCE_ID,nodeId);
         proxy.setConfig(config);
         proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
@@ -243,20 +248,20 @@ public class AutomationNodeCleanupTaskTest extends BaseTest {
         proxySet.add(proxy);
         proxySet.add(proxy2);
         proxySet.add(proxy3);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<>();
         config.put(AutomationConstants.INSTANCE_ID,nodeId);
         proxy.setConfig(config);
         proxy.setMaxNumberOfConcurrentTestSessions(4);
         proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
 
-        Map<String,Object> config2 = new HashMap<>();
+        Map<String,String> config2 = new HashMap<>();
         config2.put(AutomationConstants.INSTANCE_ID,nodeId2);
         proxy2.setMaxNumberOfConcurrentTestSessions(4);
         proxy2.setConfig(config2);
         proxy2.setCapabilityMatcher(new AutomationCapabilityMatcher());
 
 
-        Map<String,Object> config3 = new HashMap<>();
+        Map<String,String> config3 = new HashMap<>();
         config3.put(AutomationConstants.INSTANCE_ID,nodeId3);
         proxy3.setMaxNumberOfConcurrentTestSessions(4);
         proxy3.setConfig(config3);
@@ -314,33 +319,9 @@ public class AutomationNodeCleanupTaskTest extends BaseTest {
         Assert.assertEquals("Status should change to expired first", AutomationDynamicNode.STATUS.EXPIRED, node.getStatus());
         task.run();
         Assert.assertEquals("Node should be terminated as it was empty", AutomationDynamicNode.STATUS.TERMINATED, node.getStatus());
-        Assert.assertNotNull("Node should be tracked", AutomationContext.getContext().getNode(node.getInstanceId()));
+        Assert.assertNull("Node should no longer be tracked",AutomationContext.getContext().getNode(node.getInstanceId()));
         node.setEndDate(AutomationUtils.modifyDate(new Date(), -45, Calendar.MINUTE));
         task.run();
         Assert.assertNull("Node should not be tracked after its been terminated for 30 minutes", AutomationContext.getContext().getNode(node.getInstanceId()));
-    }
-
-    @Test
-    // Tests that a terminated node is removed from internal tracking as well as from Selenium's ProxySet
-    public void testNodeRemovedFromInternalTrackingAndProxy() {
-        ProxySet proxySet = new ProxySet(false);
-        MockAutomationNodeCleanupTask task = new MockAutomationNodeCleanupTask(null,new MockVmManager(),new MockRequestMatcher());
-        MockRemoteProxy proxy = new MockRemoteProxy();
-        proxySet.add(proxy);
-        task.setProxySet(proxySet);
-        AutomationDynamicNode node = new AutomationDynamicNode("testUuid","dummyId",null,null,AutomationUtils.modifyDate(new Date(),-56, Calendar.MINUTE),10);
-        proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
-        Map<String,Object> config = new HashMap<>();
-        config.put(AutomationConstants.INSTANCE_ID,node.getInstanceId());
-        proxy.setConfig(config);
-        AutomationContext.getContext().addNode(node);
-        proxy.setCapabilityMatcher(new AutomationCapabilityMatcher());
-        Assert.assertFalse("Proxy should not be removed yet", task.isProxyRemoved());
-        task.run();
-        Assert.assertEquals("Status should change to expired first", AutomationDynamicNode.STATUS.EXPIRED, node.getStatus());
-        task.run();
-        Assert.assertEquals("Node should be terminated as it was empty", AutomationDynamicNode.STATUS.TERMINATED, node.getStatus());
-        Assert.assertNotNull("Node should still be tracked after its terminated", AutomationContext.getContext().getNode(node.getInstanceId()));
-        Assert.assertTrue("Proxy should have been removed yet", task.isProxyRemoved());
     }
 }
