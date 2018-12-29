@@ -18,24 +18,29 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Test;
 import org.openqa.grid.internal.ProxySet;
-import org.openqa.selenium.Platform;
 
 import com.rmn.qa.AutomationCapabilityMatcher;
 import com.rmn.qa.AutomationConstants;
 import com.rmn.qa.AutomationContext;
 import com.rmn.qa.AutomationDynamicNode;
-import com.rmn.qa.BaseTest;
 import com.rmn.qa.MockRemoteProxy;
 import com.rmn.qa.aws.AwsVmManager;
 
 import junit.framework.Assert;
+import org.openqa.selenium.Platform;
 
 /**
  * Created by mhardin on 4/24/14.
  */
-public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
+public class AutomationOrphanedNodeRegistryTaskTest {
+
+    @After
+    public void tearDown() {
+        AutomationContext.refreshContext();
+    }
 
     @Test
     // Tests that the hardcoded name of the task is correct
@@ -51,7 +56,7 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         ProxySet proxySet = new ProxySet(false);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<String, String>();
         String instanceId = "instanceId";
         String uuid="testUuid";
         int threadCount = 10;
@@ -59,7 +64,8 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         Platform os = Platform.LINUX;
         config.put(AutomationConstants.INSTANCE_ID,instanceId);
         config.put(AutomationConstants.UUID,uuid);
-        config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        // config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        proxy.getConfig().maxSession = threadCount;
         config.put(AutomationConstants.CONFIG_BROWSER, browser);
         config.put(AutomationConstants.CONFIG_OS, os.toString());
         config.put(AutomationConstants.CONFIG_CREATED_DATE, AwsVmManager.NODE_DATE_FORMAT.format(new Date()));
@@ -83,7 +89,7 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         ProxySet proxySet = new ProxySet(false);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<String, String>();
         String instanceId = "instanceId";
         String uuid="testUuid";
         int threadCount = 10;
@@ -91,7 +97,8 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         Platform os = Platform.LINUX;
         config.put(AutomationConstants.INSTANCE_ID,instanceId);
         config.put(AutomationConstants.UUID,"fake");
-        config.put(AutomationConstants.CONFIG_MAX_SESSION, 1);
+        // config.put(AutomationConstants.CONFIG_MAX_SESSION, 1);
+        proxy.getConfig().maxSession = 1;
         config.put(AutomationConstants.CONFIG_BROWSER, "fake");
         config.put(AutomationConstants.CONFIG_OS, "fake");
         config.put(AutomationConstants.CONFIG_CREATED_DATE, AwsVmManager.NODE_DATE_FORMAT.format(new Date()));
@@ -117,13 +124,14 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         ProxySet proxySet = new ProxySet(false);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<String, String>();
         String uuid="testUuid";
         int threadCount = 10;
         String browser = "firefox";
         String os = "linux";
         config.put(AutomationConstants.UUID,uuid);
-        config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        //config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        proxy.getConfig().maxSession = threadCount;
         config.put(AutomationConstants.CONFIG_BROWSER, browser);
         config.put(AutomationConstants.CONFIG_OS, os);
         config.put(AutomationConstants.CONFIG_CREATED_DATE, AwsVmManager.NODE_DATE_FORMAT.format(new Date()));
@@ -164,7 +172,7 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         ProxySet proxySet = new ProxySet(false);
         MockRemoteProxy proxy = new MockRemoteProxy();
         proxySet.add(proxy);
-        Map<String,Object> config = new HashMap<>();
+        Map<String,String> config = new HashMap<>();
         String instanceId = "instanceId";
         String uuid="testUuid";
         int threadCount = 10;
@@ -172,7 +180,8 @@ public class AutomationOrphanedNodeRegistryTaskTest extends BaseTest {
         String os = "linux";
         config.put(AutomationConstants.INSTANCE_ID,instanceId);
         config.put(AutomationConstants.UUID,uuid);
-        config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        //config.put(AutomationConstants.CONFIG_MAX_SESSION, threadCount);
+        proxy.getConfig().maxSession = threadCount;
         config.put(AutomationConstants.CONFIG_BROWSER, browser);
         config.put(AutomationConstants.CONFIG_OS, os);
 

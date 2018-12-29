@@ -13,6 +13,7 @@ package com.rmn.qa.task;
 
 import java.util.Map;
 
+import com.rmn.qa.aws.VmManager;
 import org.openqa.grid.internal.ProxySet;
 import org.openqa.grid.internal.RemoteProxy;
 import org.slf4j.Logger;
@@ -24,10 +25,9 @@ import com.rmn.qa.AutomationContext;
 import com.rmn.qa.AutomationDynamicNode;
 import com.rmn.qa.AutomationRunContext;
 import com.rmn.qa.RegistryRetriever;
-import com.rmn.qa.aws.VmManager;
 
 /**
- * Registry task which registers dynamic {@link AutomationDynamicNode nodes} as they come online
+ * Registry task which removes dynamic {@link AutomationDynamicNode nodes} from the internal tracking pending set as they come online
  *
  * @author mhardin
  */
@@ -70,11 +70,11 @@ public class AutomationPendingNodeRegistryTask extends AbstractAutomationCleanup
 		ProxySet proxySet = getProxySet();
 		if (proxySet != null && !proxySet.isEmpty()) {
 			for (RemoteProxy proxy : proxySet) {
-				Map<String, Object> config = proxy.getConfig();
+				Map<String, String> customConfig = proxy.getConfig().custom;
 				// If the config has an instanceId in it, this means this node was dynamically started and we should
 				// track it if we are not already
-				if (config.containsKey(AutomationConstants.INSTANCE_ID)) {
-					String instanceId = (String) config.get(AutomationConstants.INSTANCE_ID);
+				if (customConfig.containsKey(AutomationConstants.INSTANCE_ID)) {
+					String instanceId = (String) customConfig.get(AutomationConstants.INSTANCE_ID);
 					AutomationRunContext context = AutomationContext.getContext();
 					// If this node is already in our context, that means we are already tracking this node to terminate
 					if (context.pendingNodeExists(instanceId)) {

@@ -18,27 +18,28 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.rmn.qa.BrowserPlatformPair;
 import org.apache.commons.codec.binary.Base64;
+
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.remote.BrowserType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
+
+import com.amazonaws.auth.BasicAWSCredentials;
+
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.Instance;
@@ -49,10 +50,11 @@ import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+
 import com.google.common.annotations.VisibleForTesting;
+
 import com.rmn.qa.AutomationConstants;
 import com.rmn.qa.AutomationUtils;
-import com.rmn.qa.BrowserPlatformPair;
 import com.rmn.qa.NodesCouldNotBeStartedException;
 
 /**
@@ -62,16 +64,19 @@ public class AwsVmManager implements VmManager {
 
     private static final Logger log = LoggerFactory.getLogger(AwsVmManager.class);
     public static final DateFormat NODE_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
     public static final Platform DEFAULT_PLATFORM = Platform.UNIX;
     private AmazonEC2Client client;
-    @VisibleForTesting AWSCredentials credentials;
+    @VisibleForTesting
+    AWSCredentials credentials;
     private Properties awsProperties;
-    public static final int CHROME_THREAD_COUNT = 5;
-    public static final int FIREFOX_IE_THREAD_COUNT = 1;
+    public static final int CHROME_THREAD_COUNT = 15;
+    public static final int FIREFOX_IE_THREAD_COUNT = 24;
+    public static final int IE_THREAD_COUNT = 1;
     private String region;
 
-
     static {
+
         // Read and write dates from node config in UTC format
         NODE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -94,10 +99,6 @@ public class AwsVmManager implements VmManager {
             log.info("Falling back to IAM roles for authorization since no credentials provided in system properties", e);
             client = new AmazonEC2Client();
         }
-        AwsVmManager.setRegion(client, awsProperties, region);
-    }
-
-    public static void setRegion(AmazonEC2Client client, Properties awsProperties, String region) {
         client.setEndpoint(awsProperties.getProperty(region + "_endpoint"));
     }
 
@@ -146,23 +147,14 @@ public class AwsVmManager implements VmManager {
         return properties;
     }
 
-    @VisibleForTesting
-    AmazonEC2Client getClient() {
-        return client;
-    }
-
-    protected Properties getAwsProperties() {
-        return awsProperties;
-    }
-
     /**
      * Retrieves AWS {@link com.amazonaws.auth.BasicAWSCredentials credentials} from the configuration file.
      *
      * @return
      */
     @VisibleForTesting
-    AWSCredentials getCredentials() {
-        Properties awsProperties = getAwsProperties();
+    BasicAWSCredentials getCredentials() {
+
         // Give the system property credentials precedence over ones found in the config file
         String accessKey = System.getProperty(AutomationConstants.AWS_ACCESS_KEY);
         if (accessKey == null) {
@@ -184,20 +176,14 @@ public class AwsVmManager implements VmManager {
             }
         }
 
-        // Token is not required, so do not throw an exception if it is not present
-        String token = System.getProperty(AutomationConstants.AWS_TOKEN);
-        if (token == null) {
-            token = awsProperties.getProperty(AutomationConstants.AWS_TOKEN);
-        }
-
-        return new BasicSessionCredentials(accessKey, privateKey, token);
+        return new BasicAWSCredentials(accessKey, privateKey);
     }
 
     public List<Instance> launchNodes(final String amiId, final String instanceType, final int numberToStart,
-            final String userData, final boolean terminateOnShutdown) throws NodesCouldNotBeStartedException {
+                                      final String userData, final boolean terminateOnShutdown) throws NodesCouldNotBeStartedException {
         RunInstancesRequest runRequest = new RunInstancesRequest();
         runRequest.withImageId(amiId).withInstanceType(instanceType).withMinCount(numberToStart)
-                  .withMaxCount(numberToStart).withUserData(userData);
+                .withMaxCount(numberToStart).withUserData(userData);
         if (terminateOnShutdown) {
             runRequest.withInstanceInitiatedShutdownBehavior("terminate");
         }
@@ -205,7 +191,6 @@ public class AwsVmManager implements VmManager {
         log.info("Setting image id: " + runRequest.getImageId());
         log.info("Setting instance type: " + runRequest.getInstanceType());
 
-        Properties awsProperties = getAwsProperties();
         String subnetKey = awsProperties.getProperty(region + "_subnet_id");
         if (subnetKey != null) {
             log.info("Setting subnet: " + subnetKey);
@@ -254,6 +239,7 @@ public class AwsVmManager implements VmManager {
     @Override
     public List<Instance> launchNodes(final String uuid, Platform platform, final String browser, final String hubHostName,
                                       final int nodeCount, final int maxSessions) throws NodesCouldNotBeStartedException {
+
         // If platform is null or ANY, go ahead and default to any
         if (platform == null) {
             platform = Platform.ANY;
@@ -266,8 +252,8 @@ public class AwsVmManager implements VmManager {
         if (platform == platform.ANY) {
             platform = DEFAULT_PLATFORM;
         }
+
         String userData = getUserData(uuid, hubHostName, browser, platform, maxSessions);
-        Properties awsProperties = getAwsProperties();
         String amiId = awsProperties.getProperty(getAmiIdForOs(platform, browser));
         String instanceType = awsProperties.getProperty("node_instance_type_" + browser);
         return this.launchNodes(amiId, instanceType, nodeCount, userData, false);
@@ -285,14 +271,13 @@ public class AwsVmManager implements VmManager {
      * @throws  NodesCouldNotBeStartedException
      */
     private RunInstancesResult getResults(final RunInstancesRequest request, int requestNumber)
-        throws NodesCouldNotBeStartedException {
+            throws NodesCouldNotBeStartedException {
         RunInstancesResult runInstancesResult;
         try {
-            AmazonEC2Client localClient = getClient();
-            if(localClient == null){
+            if(client == null){
                 throw new RuntimeException("The client is not initialized");
             }
-            runInstancesResult = localClient.runInstances(request);
+            runInstancesResult = client.runInstances(request);
         } catch (AmazonServiceException e) {
 
             // If there is insufficient capacity in this subnet / availability zone, then we want to try other
@@ -302,7 +287,6 @@ public class AwsVmManager implements VmManager {
                 log.error(String.format("Insufficient capacity in subnet [%s]: %s", request.getSubnetId(), e));
                 requestNumber = requestNumber + 1;
 
-                Properties awsProperties = getAwsProperties();
                 String fallBackSubnetId = awsProperties.getProperty(region + "_subnet_fallback_id_" + requestNumber);
 
                 // Make sure and only try to recursively loop so as long as we have a valid fallback subnet id.  Logic
@@ -315,7 +299,7 @@ public class AwsVmManager implements VmManager {
                     request.withSubnetId(fallBackSubnetId);
                 } else {
                     throw new NodesCouldNotBeStartedException(
-                        "Sufficient resources were not available in any of the availability zones");
+                            "Sufficient resources were not available in any of the availability zones");
                 }
 
                 return getResults(request, requestNumber);
@@ -337,7 +321,7 @@ public class AwsVmManager implements VmManager {
      */
     @VisibleForTesting
     void associateTags(final String threadName, final Collection<Instance> instances) {
-        Thread reportThread = new AwsTagReporter(threadName, getClient(), instances, getAwsProperties());
+        Thread reportThread = new AwsTagReporter(threadName, client, instances, awsProperties);
         reportThread.start();
     }
 
@@ -373,22 +357,10 @@ public class AwsVmManager implements VmManager {
         TerminateInstancesRequest terminateRequest = new TerminateInstancesRequest();
         terminateRequest.withInstanceIds(instanceId);
 
-        AmazonEC2Client localClient = getClient();
-        if(localClient == null){
+        if(client == null){
             throw new RuntimeException("The client is not initialized");
         }
-        TerminateInstancesResult result;
-        try{
-            result = localClient.terminateInstances(terminateRequest);
-        } catch(AmazonServiceException ase) {
-            // If the node was terminated outside of this plugin, handle the error appropriately
-            if (ase.getErrorCode().equals("InvalidInstanceID.NotFound")) {
-                log.error("Node not found when attempting to remove: " + instanceId);
-                return false;
-            } else {
-                throw ase;
-            }
-        }
+        TerminateInstancesResult result = client.terminateInstances(terminateRequest);
         List<InstanceStateChange> stateChanges = result.getTerminatingInstances();
         boolean terminatedInstance = false;
         for (InstanceStateChange stateChange : stateChanges) {
@@ -410,13 +382,12 @@ public class AwsVmManager implements VmManager {
             return false;
         }
 
-        log.info(String.format("Node [%s] successfully terminated", instanceId));
         return true;
     }
 
     @Override
     public List<Reservation> describeInstances(final DescribeInstancesRequest describeInstancesRequest) {
-        return getClient().describeInstances(describeInstancesRequest).getReservations();
+        return client.describeInstances(describeInstancesRequest).getReservations();
     }
 
     /**
@@ -432,9 +403,9 @@ public class AwsVmManager implements VmManager {
      */
     @VisibleForTesting
     String getUserData(final String uuid, final String hubHostName, final String browser, final Platform platform,
-            final int maxSessions) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(outputStream);
+                       final int maxSessions) {
+        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ZipOutputStream zos = new ZipOutputStream(outputStream);
         ) {
 
             // Pull the node config out so we can write it to the zip file
@@ -484,7 +455,7 @@ public class AwsVmManager implements VmManager {
         nodeConfig = nodeConfig.replaceAll("<MAX_SESSION>", String.valueOf(maxSessions));
         nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_FIREFOX>",
                 String.valueOf(AwsVmManager.FIREFOX_IE_THREAD_COUNT));
-        nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_IE>", String.valueOf(AwsVmManager.FIREFOX_IE_THREAD_COUNT));
+        nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_IE>", String.valueOf(AwsVmManager.IE_THREAD_COUNT));
         nodeConfig = nodeConfig.replaceAll("<MAX_SESSION_CHROME>", String.valueOf(AwsVmManager.CHROME_THREAD_COUNT));
         nodeConfig = nodeConfig.replaceAll("<UUID>", uuid);
         nodeConfig = nodeConfig.replaceAll("<CREATED_BROWSER>", browser);
@@ -493,8 +464,11 @@ public class AwsVmManager implements VmManager {
         Date createdDate = Calendar.getInstance().getTime();
 
         // Pass in the created date so we can know when this node was spun up
-        nodeConfig = nodeConfig.replaceAll("<CREATED_DATE>", AwsVmManager.NODE_DATE_FORMAT.format(createdDate));
-        nodeConfig = nodeConfig.replaceFirst("<HOST_NAME>", hostName);
+        String nodeCreatedDate = AwsVmManager.NODE_DATE_FORMAT.format(createdDate);
+        nodeCreatedDate = "\"" + nodeCreatedDate + "\"";
+        nodeConfig = nodeConfig.replaceAll("<CREATED_DATE>",nodeCreatedDate );
+        String hubUrl = "http://"+hostName+":4444";
+        nodeConfig = nodeConfig.replaceFirst("<HOST_NAME>", hubUrl);
         return nodeConfig;
     }
 
